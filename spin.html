@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Spin & Win - Glamorize Salon</title>
+</head>
+<body>
+  <h2>🎉 Spin & Win at Glamorize Salon 🎉</h2>
+
+  <form id="spinForm">
+    <input type="text" id="name" placeholder="Your Name" required><br><br>
+    <input type="text" id="phone" placeholder="Phone Number" required><br><br>
+    <button type="submit">Spin the Wheel</button>
+  </form>
+
+  <div id="result" style="margin-top: 20px;"></div>
+
+  <script>
+    const prizes = [
+      { prize: "20% OFF", code: "GLAM20" },
+      { prize: "Free Hair Wash", code: "FREEWASH" },
+      { prize: "₹100 OFF", code: "SAVE100" },
+      { prize: "Unlimited Threading", code: "UNTHREAD" },
+      { prize: "Free Haircut", code: "HAIRCUT20" },
+      { prize: "50% OFF Grand Prize", code: "BIGGLAM" },
+      { prize: "Free Pedicure", code: "FEATGLAM20" },
+      { prize: "2 Regular Cleanups", code: "CLEAGLAM20" }
+    ];
+
+    const form = document.getElementById("spinForm");
+    const result = document.getElementById("result");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+
+      if (!name || !phone) {
+        result.innerHTML = "❌ Please fill in all fields.";
+        return;
+      }
+
+      const randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
+      const payload = {
+        name: name,
+        phone: phone,
+        prize: randomPrize.prize,
+        code: randomPrize.code
+      };
+
+      const scriptURL = "https://script.google.com/macros/s/AKfycbz9iQN66W8uzUfUHRuThwjQTOv6SzWQKYtsH7Q0Bk7iDtYgmknXENf9awqNeoduM-NVgA/exec";
+
+      fetch(scriptURL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.text())
+      .then(response => {
+        if (response.toLowerCase().includes("success")) {
+          result.innerHTML = `<h3>🎁 You won: ${randomPrize.prize}</h3><p>Coupon Code: <strong>${randomPrize.code}</strong></p>`;
+        } else {
+          result.innerHTML = "⚠️ Error from server: " + response;
+        }
+        form.reset();
+      })
+      .catch(err => {
+        console.error("Fetch Error:", err);
+        result.innerHTML = "❌ Something went wrong. Please try again.";
+      });
+    });
+  </script>
+</body>
+</html>
